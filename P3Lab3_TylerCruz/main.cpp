@@ -41,6 +41,10 @@ int main(int argc, char** argv) {
     matrix = GenerateMatrix(size);
     matrix = fillMatrix(matrix, size);
     printMatrix(matrix, size);
+    
+    int** temp = GenerateMatrix(size - 1);
+    temp = submatrix(temp,0,0,size);
+    printMatrix(temp,size- 1);
 
 
     //Free memory space        
@@ -117,7 +121,7 @@ int** calculateAdjunta(int** matrix, int size) {
 }
 
 int calculateCofactor(int**& m, int row, int col, int size) {
-    int** temp = new int*[size - 1];
+    int** temp = GenerateMatrix(size-1);
     temp = submatrix(m, row, col, size);
     int calculation;
     calculation = calculate_negativePositive(row, col) * determinante(temp, size - 1);
@@ -126,9 +130,9 @@ int calculateCofactor(int**& m, int row, int col, int size) {
 }
 
 int** submatrix(int**& m, int row, int col, int size) {
-    int** temp = new int*[size - 1];
-    for (int i = 0; i < row; i++) {
-        for (int j = 0; i < col; j++) {
+    int** temp = GenerateMatrix(size);
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; i < size; j++) {
             if (i != row && j != col)
                 temp[i][j] = m[i][j];
         }

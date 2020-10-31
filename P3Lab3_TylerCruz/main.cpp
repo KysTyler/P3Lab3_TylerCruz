@@ -23,15 +23,18 @@ using namespace std;
 
 int** GenerateMatrix(int);
 void FreeMatrix(int**&, int);
-void printMatrix(int**, int);
+void printMatrix(int**&, int);
 int** fillMatrix(int**& matrix, int size);
 int calculate_negativePositive(int, int);
-int** calculateAdjunta(int**, int);
-int calculateCofactor(int**&, int, int, int);
-int** submatrix(int**&, int, int, int);
-int determinante(int**&, int);
-int calculate2x2(int**&, int);
-int** transpuesta(int**& ,int );
+double** calculateAdjunta(double**, int);
+double calculateCofactor(double**&, int, int, int);
+double** submatrix(double**&, int, int, int);
+double determinante(double**&, int);
+int calculate2x2(double**&, int);
+double** transpuesta(double**&, int);
+double** inverse(double**& ,double ,int );
+double** GenerateMatrix1(int);
+void printMatrix1(double**& matrix, int size);
 
 int main(int argc, char** argv) {
     int size;
@@ -42,9 +45,16 @@ int main(int argc, char** argv) {
     matrix = fillMatrix(matrix, size);
     printMatrix(matrix, size);
     
-    int** temp = GenerateMatrix(size - 1);
-    temp = submatrix(temp,0,0,size);
-    printMatrix(temp,size- 1);
+    //testing submatrix
+    double** temp = GenerateMatrix1(size);
+    //temp = submatrix(temp, 0, 0, size);
+    //cout << endl;
+    //printMatrix(temp, size - 1);
+    
+    //program
+    double** N = calculateAdjunta(temp,size);
+    double determinante_A = determinante(temp,size);
+    //double respuesta = inverse(N,determinante_A,size);
 
 
     //Free memory space        
@@ -57,6 +67,17 @@ int** GenerateMatrix(int size) {
         int** charArray = new int*[size];
         for (int i = 0; i < size; i++) {
             charArray[i] = new int[size];
+        }
+        return charArray;
+    }
+    return NULL;
+}
+
+double** GenerateMatrix1(int size) {
+    if (size > 0) {
+        double** charArray = new double*[size];
+        for (int i = 0; i < size; i++) {
+            charArray[i] = new double[size];
         }
         return charArray;
     }
@@ -76,7 +97,20 @@ void FreeMatrix(int**& m, int size) {
     }
 }
 
-void printMatrix(int** matrix, int size) {
+void printMatrix(int**& matrix, int size) {
+    if (size > 0 && matrix != NULL) {
+        for (int i = 0; i < size; i++) {
+            if (matrix[i] != NULL) {
+                for (int j = 0; j < size; j++) {
+                    cout << matrix[i][j] << " ";
+                }
+                cout << endl;
+            }
+        }
+    }
+}
+
+void printMatrix1(double**& matrix, int size) {
     if (size > 0 && matrix != NULL) {
         for (int i = 0; i < size; i++) {
             if (matrix[i] != NULL) {
@@ -109,20 +143,20 @@ int calculate_negativePositive(int i, int j) {
     return -1;
 }
 
-int** calculateAdjunta(int** matrix, int size) {
-    int** temp = new int*[size];
+double** calculateAdjunta(double** matrix, int size) {
+    double** temp = GenerateMatrix1(size - 1);
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
             temp[i][j] = calculateCofactor(temp, i, j, size);
         }
     }
-    temp = transpuesta(temp,size);
+    temp = transpuesta(temp, size);
     return temp;
 }
 
-int calculateCofactor(int**& m, int row, int col, int size) {
-    int** temp = GenerateMatrix(size-1);
-    temp = submatrix(m, row, col, size);
+double calculateCofactor(double**& m, int row, int col, int size) {
+    double** temp = GenerateMatrix1(size - 1);
+    //temp = submatrix(m, row, col, size);
     int calculation;
     calculation = calculate_negativePositive(row, col) * determinante(temp, size - 1);
     return calculation;
@@ -130,17 +164,31 @@ int calculateCofactor(int**& m, int row, int col, int size) {
 }
 
 int** submatrix(int**& m, int row, int col, int size) {
+    int mx = 0, ny = 0;
     int** temp = GenerateMatrix(size);
+    cout << size - 1 << "size - 1" << endl;
     for (int i = 0; i < size; i++) {
-        for (int j = 0; i < size; j++) {
-            if (i != row && j != col)
-                temp[i][j] = m[i][j];
+        for (int j = 0; j < size; j++) {
+            cout << "I  ---> " << i << endl;
+            cout << "J ----> " << j << endl;
+            if (i != row && j != col) {
+                cout << "[" << mx << "]" << "[" << ny << "]" << "THiS " << endl;
+                temp[mx][ny] = m[i][j];
+                //cout<< "A" << "["<<temp[mx][ny]<<"]" << endl;
+                //cout<< "B" << "["<<m[i][j]<<"]" << endl;
+                ny++;
+            }
+
+            if (ny == size - 1) {
+                mx++;
+                ny = 0;
+            }
         }
     }
     return temp;
 }
 
-int determinante(int**& m, int size) {
+double determinante(double**& m, int size) {
     int valor = 0;
     if (size == 2) {
         valor = calculate2x2(m, size);
@@ -152,7 +200,7 @@ int determinante(int**& m, int size) {
     return valor;
 }
 
-int calculate2x2(int**& m, int size) {
+int calculate2x2(double**& m, int size) {
     int diagonal = 0, inverserDiagonal = 0, result;
     diagonal += m[0][0] * m[1][1];
     inverserDiagonal += m[0][1] * m[1][0];
@@ -160,12 +208,23 @@ int calculate2x2(int**& m, int size) {
     return result;
 }
 
-int** transpuesta(int**& m,int size){
-    int** temp = new int*[size];
-    for(int i=0;i<size;i++){
-        for(int j = 0;j< size;j++){
+double** transpuesta(double**& m, int size) {
+    double** temp = GenerateMatrix1(size);
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
             temp[i][j] = m[j][i];
         }
     }
     return temp;
 }
+
+double** inverse(double**& m,double determinante,int size){
+    double** K = GenerateMatrix1(size);
+    for(int i = 0;i< size;i++){
+        for(int j = 0;j<size;j++){
+            K[i][j] = 1 / (determinante * m[i][j]);
+        }
+    }
+    return K;
+}
+
